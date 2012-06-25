@@ -49,30 +49,39 @@ import org.spoutcraft.launcher.SettingsUtil;
 import org.spoutcraft.launcher.modpacks.InstalledModsYML;
 import org.spoutcraft.launcher.modpacks.ModPackYML;
 
-public class OptionDialog extends JDialog implements ActionListener {
 
-	private static final long		serialVersionUID		= 1L;
-	private final JPanel				contentPanel				= new JPanel();
-	public Map<String, String>	modPackList					= null;
-	JRadioButton								devBuilds						= new JRadioButton("Always use development builds");
-	JRadioButton								recBuilds						= new JRadioButton("Always use recommended builds");
-	JRadioButton								customBuilds				= new JRadioButton("Manual build selection");
+public class OptionDialog extends JDialog implements ActionListener
+{
+	private static final long serialVersionUID = 1L;
+	private final JPanel contentPanel = new JPanel();
+	JRadioButton devBuilds = new JRadioButton("Always use development builds");
+	JRadioButton recBuilds = new JRadioButton("Always use recommended builds");
+	JRadioButton customBuilds = new JRadioButton("Manual build selection");
 	// JCheckBox clipboardCheckbox = new
 	// JCheckBox("Allow access to your clipboard");
-	JCheckBox										backupCheckbox			= new JCheckBox("Include worlds when doing automated backup");
-	JCheckBox										retryLoginCheckbox	= new JCheckBox("Retry after connection timeout");
-	JCheckBox										latestLWJGLCheckbox	= new JCheckBox("Use latest LWJGL binaries");
-	JComboBox										memoryCombo					= new JComboBox();
-	JButton											clearCache					= new JButton("Clear Cache");
-	JLabel											buildInfo						= new JLabel();
-	JComboBox										buildsCombo					= new JComboBox();
-	int[]												memValues						= new int[] { 1, 2, 3, 4, 6, 8, 10 };
+	JCheckBox backupCheckbox = new JCheckBox("Include worlds when doing automated backup");
+	JCheckBox retryLoginCheckbox = new JCheckBox("Retry after connection timeout");
+	JCheckBox latestLWJGLCheckbox = new JCheckBox("Use latest LWJGL binaries");
+	JComboBox memoryCombo = new JComboBox();
+	JButton clearCache = new JButton("Clear Cache");
+	JLabel buildInfo = new JLabel();
+	JComboBox buildsCombo = new JComboBox();
+	int[] memValues = new int[]
+	{
+		1, 2, 3, 4, 6, 8, 10
+	};
 
 	/**
 	 * Create the dialog.
 	 */
 	@SuppressWarnings("unchecked")
-	public OptionDialog() {
+	public OptionDialog()
+	{
+	}
+
+	@Override
+	protected void dialogInit()
+	{
 		setTitle("Technic Launcher Settings");
 
 		ButtonGroup group = new ButtonGroup();
@@ -110,7 +119,8 @@ public class OptionDialog extends JDialog implements ActionListener {
 		memoryCombo.addItem("1536 MB");
 
 		String vmType = System.getProperty("sun.arch.data.model");
-		if (vmType != null && vmType.equals("64")) {
+		if (vmType != null && vmType.equals("64"))
+		{
 			memoryCombo.addItem("2 GB");
 			memoryCombo.addItem("4 GB");
 			memoryCombo.addItem("8 GB");
@@ -118,13 +128,12 @@ public class OptionDialog extends JDialog implements ActionListener {
 		}
 
 		JLabel lblMemoryToAllocate = new JLabel("Memory to allocate: ");
-		JLabel lblPack = new JLabel("Select Mod Pack: ");
 
 		JLabel selectBuild = new JLabel("Select Modpack build: ");
 
 		GroupLayout gl_contentPanel = new GroupLayout(contentPanel);
 		gl_contentPanel.setHorizontalGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING).addGroup(gl_contentPanel.createSequentialGroup().addContainerGap().addGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING).addGroup(gl_contentPanel.createSequentialGroup().addComponent(selectBuild).addPreferredGap(ComponentPlacement.RELATED).addComponent(buildsCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)).addComponent(devBuilds).addComponent(recBuilds).addComponent(customBuilds).addGroup(gl_contentPanel.createSequentialGroup()) // .addComponent(clipboardCheckbox)
-		.addComponent(backupCheckbox).addComponent(retryLoginCheckbox).addComponent(latestLWJGLCheckbox).addComponent(clearCache).addComponent(buildInfo).addGroup(gl_contentPanel.createSequentialGroup().addComponent(lblMemoryToAllocate).addPreferredGap(ComponentPlacement.RELATED).addComponent(memoryCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))).addContainerGap(27, Short.MAX_VALUE)));
+			.addComponent(backupCheckbox).addComponent(retryLoginCheckbox).addComponent(latestLWJGLCheckbox).addComponent(clearCache).addComponent(buildInfo).addGroup(gl_contentPanel.createSequentialGroup().addComponent(lblMemoryToAllocate).addPreferredGap(ComponentPlacement.RELATED).addComponent(memoryCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))).addContainerGap(27, Short.MAX_VALUE)));
 
 		Font font = new Font("Arial", Font.PLAIN, 11);
 		backupCheckbox.setFont(font);
@@ -136,7 +145,7 @@ public class OptionDialog extends JDialog implements ActionListener {
 		clearCache.setActionCommand("Clear Cache");
 		clearCache.addActionListener(this);
 		gl_contentPanel.setVerticalGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING).addGroup(gl_contentPanel.createSequentialGroup().addGroup(gl_contentPanel.createParallelGroup(Alignment.BASELINE).addComponent(selectBuild).addComponent(buildsCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)).addComponent(devBuilds).addComponent(recBuilds).addComponent(customBuilds).addComponent(retryLoginCheckbox).addPreferredGap(ComponentPlacement.RELATED) // .addComponent(clipboardCheckbox)
-		.addComponent(backupCheckbox).addComponent(latestLWJGLCheckbox).addPreferredGap(ComponentPlacement.RELATED).addGroup(gl_contentPanel.createParallelGroup(Alignment.BASELINE).addComponent(memoryCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE).addComponent(lblMemoryToAllocate)).addPreferredGap(ComponentPlacement.RELATED).addComponent(clearCache).addPreferredGap(ComponentPlacement.RELATED).addComponent(buildInfo).addContainerGap(316, Short.MAX_VALUE)));
+			.addComponent(backupCheckbox).addComponent(latestLWJGLCheckbox).addPreferredGap(ComponentPlacement.RELATED).addGroup(gl_contentPanel.createParallelGroup(Alignment.BASELINE).addComponent(memoryCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE).addComponent(lblMemoryToAllocate)).addPreferredGap(ComponentPlacement.RELATED).addComponent(clearCache).addPreferredGap(ComponentPlacement.RELATED).addComponent(buildInfo).addContainerGap(316, Short.MAX_VALUE)));
 
 		contentPanel.setLayout(gl_contentPanel);
 		{
@@ -160,19 +169,27 @@ public class OptionDialog extends JDialog implements ActionListener {
 			}
 		}
 		latestLWJGLCheckbox.setEnabled(false);
+		
+		super.dialogInit();
 	}
 
-	public void reloadSettings() {
-		if (SettingsUtil.isRecommendedBuild()) {
+	public void reloadSettings()
+	{
+		if (SettingsUtil.isRecommendedBuild())
+		{
 			devBuilds.setSelected(false);
 			recBuilds.setSelected(true);
 			customBuilds.setSelected(false);
 			SettingsUtil.setDevelopmentBuild(false);
-		} else if (SettingsUtil.isDevelopmentBuild()) {
+		}
+		else if (SettingsUtil.isDevelopmentBuild())
+		{
 			devBuilds.setSelected(true);
 			recBuilds.setSelected(false);
 			customBuilds.setSelected(false);
-		} else {
+		}
+		else
+		{
 			devBuilds.setSelected(false);
 			recBuilds.setSelected(false);
 			customBuilds.setSelected(true);
@@ -187,30 +204,39 @@ public class OptionDialog extends JDialog implements ActionListener {
 		latestLWJGLCheckbox.setSelected(false);
 
 		int memIndex = Arrays.binarySearch(memValues, SettingsUtil.getMemorySelection() / 512);
-		if (memIndex < 0 || memIndex > memoryCombo.getItemCount()) {
+		if (memIndex < 0 || memIndex > memoryCombo.getItemCount())
+		{
 			memIndex = 1;
 		}
 		memoryCombo.setSelectedIndex(memIndex);
 	}
 
-	public void updateBuildsList() {
+	public void updateBuildsList()
+	{
 		buildsCombo.removeAllItems();
 		String[] buildList = ModPackYML.getModpackBuilds();
-		if (buildList != null) {
-			for (String item : buildList) {
+		if (buildList != null)
+		{
+			for (String item : buildList)
+			{
 				buildsCombo.addItem(item);
 			}
-		} else {
+		}
+		else
+		{
 			buildsCombo.addItem("No builds found");
 		}
 		updateBuildsCombo();
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent evt) {
+	public void actionPerformed(ActionEvent evt)
+	{
 		String id = evt.getActionCommand();
-		if (id.equals("OK")) {
-			if ((devBuilds.isSelected() && !SettingsUtil.isDevelopmentBuild()) || (recBuilds.isSelected() && !SettingsUtil.isRecommendedBuild())) {
+		if (id.equals("OK"))
+		{
+			if ((devBuilds.isSelected() && !SettingsUtil.isDevelopmentBuild()) || (recBuilds.isSelected() && !SettingsUtil.isRecommendedBuild()))
+			{
 				cleanMods();
 			}
 
@@ -220,19 +246,24 @@ public class OptionDialog extends JDialog implements ActionListener {
 			SettingsUtil.setWorldBackup(backupCheckbox.isSelected());
 			SettingsUtil.setLoginTries(retryLoginCheckbox.isSelected());
 
-			if (SettingsUtil.getMemorySelection() > (memValues[memValues.length - 1] * 512)) {
+			if (SettingsUtil.getMemorySelection() > (memValues[memValues.length - 1] * 512))
+			{
 				SettingsUtil.setMemorySelection(1024);
 			}
 
-			if (latestLWJGLCheckbox.isSelected() != SettingsUtil.isLatestLWJGL()) {
+			if (latestLWJGLCheckbox.isSelected() != SettingsUtil.isLatestLWJGL())
+			{
 				SettingsUtil.setLatestLWJGL(latestLWJGLCheckbox.isSelected());
 				clearCache();
 			}
 
-			if (buildsCombo.isEnabled()) {
+			if (buildsCombo.isEnabled())
+			{
 				String build = getSelectedBuildFromCombo();
-				if (build != null) {
-					if (!build.equalsIgnoreCase(SettingsUtil.getSelectedBuild())) {
+				if (build != null)
+				{
+					if (!build.equalsIgnoreCase(SettingsUtil.getSelectedBuild()))
+					{
 						cleanMods();
 					}
 					SettingsUtil.setSelectedBuild(build);
@@ -242,13 +273,15 @@ public class OptionDialog extends JDialog implements ActionListener {
 			File propFile = new File(GameUpdater.modpackDir, "launcher.properties");
 			GameUpdater.copy(SettingsUtil.settingsFile, propFile);
 
-			if (SettingsUtil.getMemorySelection() < 128) {
+			if (SettingsUtil.getMemorySelection() < 128)
+			{
 				SettingsUtil.setMemorySelection(1024);
 			}
 
 			int selectedIndex = memoryCombo.getSelectedIndex();
 			int selectedMemory = memValues[selectedIndex] * 512;
-			if (selectedMemory != SettingsUtil.getMemorySelection()) {
+			if (selectedMemory != SettingsUtil.getMemorySelection())
+			{
 				SettingsUtil.setMemorySelection(selectedMemory);
 				GameUpdater.copy(SettingsUtil.settingsFile, propFile);
 				// int mem = 1 << 9 + memoryCombo.getSelectedIndex();
@@ -257,60 +290,89 @@ public class OptionDialog extends JDialog implements ActionListener {
 
 			this.setVisible(false);
 			this.dispose();
-		} else if (id.equals("Cancel")) {
+		}
+		else if (id.equals("Cancel"))
+		{
 			this.setVisible(false);
 			this.dispose();
-		} else if (id.equals("Clear Cache")) {
-			if (clearCache()) {
+		}
+		else if (id.equals("Clear Cache"))
+		{
+			if (clearCache())
+			{
 				JOptionPane.showMessageDialog(getParent(), "Successfully cleared the cache.");
-			} else {
+			}
+			else
+			{
 				JOptionPane.showMessageDialog(getParent(), "Failed to clear the cache! Ensure Modpack files are open.\nIf all else fails, close the launcher, restart it, and try again.");
 			}
-		} else if (id.equals(customBuilds.getText()) || id.equals(devBuilds.getText()) || id.equals(recBuilds.getText())) {
+		}
+		else if (id.equals(customBuilds.getText()) || id.equals(devBuilds.getText()) || id.equals(recBuilds.getText()))
+		{
 			updateBuildsCombo();
 		}
 	}
 
-	private String getSelectedBuildFromCombo() {
+	private String getSelectedBuildFromCombo()
+	{
 		String build = null;
-		try {
-			String item = ((String) buildsCombo.getSelectedItem());
-			if (item.contains("|")) {
+		try
+		{
+			String item = ((String)buildsCombo.getSelectedItem());
+			if (item.contains("|"))
+			{
 				item = item.split("\\|")[0];
 			}
 			build = item.trim();
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			e.printStackTrace();
 		}
 		return build;
 	}
 
-	private void cleanMods() {
+	private void cleanMods()
+	{
 		File modsConfig = InstalledModsYML.getInstalledModsYmlFile();
-		if (modsConfig.exists()) modsConfig.delete();
+		if (modsConfig.exists())
+		{
+			modsConfig.delete();
+		}
 		FileUtils.cleanDirectory(GameUpdater.modsDir);
 	}
 
-	public void updateBuildsCombo() {
+	public void updateBuildsCombo()
+	{
 		buildsCombo.setEnabled(customBuilds.isSelected());
 
-		if (customBuilds.isSelected()) {
-			if (SettingsUtil.getSelectedBuild() != null) {
+		if (customBuilds.isSelected())
+		{
+			if (SettingsUtil.getSelectedBuild() != null)
+			{
 				String build = SettingsUtil.getSelectedBuild();
-				for (int i = 0; i < buildsCombo.getItemCount(); i++) {
-					String item = (String) buildsCombo.getItemAt(i);
-					if (item.contains(String.valueOf(build))) {
+				for (int i = 0; i < buildsCombo.getItemCount(); i++)
+				{
+					String item = (String)buildsCombo.getItemAt(i);
+					if (item.contains(String.valueOf(build)))
+					{
 						buildsCombo.setSelectedIndex(i);
 						break;
 					}
 				}
 			}
-		} else if (devBuilds.isSelected()) {
+		}
+		else if (devBuilds.isSelected())
+		{
 			buildsCombo.setSelectedIndex(0);
-		} else if (recBuilds.isSelected()) {
-			for (int i = 0; i < buildsCombo.getItemCount(); i++) {
-				String item = (String) buildsCombo.getItemAt(i);
-				if (item.contains("Rec. Build")) {
+		}
+		else if (recBuilds.isSelected())
+		{
+			for (int i = 0; i < buildsCombo.getItemCount(); i++)
+			{
+				String item = (String)buildsCombo.getItemAt(i);
+				if (item.contains("Rec. Build"))
+				{
 					buildsCombo.setSelectedIndex(i);
 					break;
 				}
@@ -318,16 +380,22 @@ public class OptionDialog extends JDialog implements ActionListener {
 		}
 	}
 
-	public static boolean clearCache() {
-		try {
+	public static boolean clearCache()
+	{
+		try
+		{
 			FileUtils.deleteDirectory(GameUpdater.binDir);
 			FileUtils.deleteDirectory(GameUpdater.tempDir);
 			FileUtils.deleteDirectory(GameUpdater.cacheDir);
 			return true;
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			e.printStackTrace();
 			return false;
-		} finally {
+		}
+		finally
+		{
 			ModPackYML.getModPackYML().setProperty("current", null);
 			MinecraftYML.setInstalledVersion("");
 		}

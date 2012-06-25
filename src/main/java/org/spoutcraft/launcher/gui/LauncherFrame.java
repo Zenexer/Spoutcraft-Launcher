@@ -19,66 +19,78 @@ package org.spoutcraft.launcher.gui;
 
 import java.applet.Applet;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-
-import org.spoutcraft.launcher.Launcher;
-import org.spoutcraft.launcher.MinecraftAppletEnglober;
-import org.spoutcraft.launcher.MinecraftUtils;
-import org.spoutcraft.launcher.PlatformUtils;
-import org.spoutcraft.launcher.Util;
+import org.spoutcraft.launcher.*;
 import org.spoutcraft.launcher.exception.CorruptedMinecraftJarException;
 import org.spoutcraft.launcher.exception.MinecraftVerifyException;
 import org.spoutcraft.launcher.modpacks.ModPackListYML;
-import org.spoutcraft.launcher.modpacks.ModPackYML;
 
-public class LauncherFrame extends Frame implements WindowListener {
-	private static final long				serialVersionUID	= 4524937541564722358L;
-	private MinecraftAppletEnglober	minecraft;
-	private LoginForm								loginForm					= null;
 
-	public static final int					RETRYING_LAUNCH		= -1;
-	public static final int					ERROR_IN_LAUNCH		= 0;
-	public static final int					SUCCESSFUL_LAUNCH	= 1;
+public class LauncherFrame extends JFrame implements WindowListener
+{
+	private static final long serialVersionUID = 4524937541564722358L;
+	private MinecraftAppletEnglober minecraft;
+	private LoginForm loginForm = null;
+	public static final int RETRYING_LAUNCH = -1;
+	public static final int ERROR_IN_LAUNCH = 0;
+	public static final int SUCCESSFUL_LAUNCH = 1;
+	public static final String WINDOW_TITLE = "Technic Launcher";
 
-	public LauncherFrame() {
-		super(ModPackListYML.currentModPackLabel);
-		super.setVisible(true);
-		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		this.setLocation((dim.width - 870) / 2, (dim.height - 518) / 2);
-		this.setSize(new Dimension(871, 519));
-		this.setResizable(true);
-		this.addWindowListener(this);
-
-		setIconImage(Toolkit.getDefaultToolkit().getImage(ModPackYML.getModPackFavIcon()));
+	public LauncherFrame()
+	{
+		super(WINDOW_TITLE);
+		
 	}
 
-	public void setLoginForm(LoginForm form) {
+	@Override
+	protected void frameInit()
+	{
+		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension dim = new Dimension(871, 519);
+		setLocation((screen.width - dim.width) / 2, (screen.height - dim.height) / 2);
+		setSize(dim);
+		
+		setResizable(true);
+		addWindowListener(this);
+		setVisible(true);
+		
+		super.frameInit();
+	}
+
+	public void setLoginForm(LoginForm form)
+	{
 		loginForm = form;
 	}
 
-	public LoginForm getLoginForm() {
+	public LoginForm getLoginForm()
+	{
 		return loginForm;
 	}
 
-	public int runGame(String user, String session, String downloadTicket, String mcpass) {
+	public int runGame(String user, String session, String downloadTicket, String mcpass)
+	{
 		Applet applet = null;
-		try {
+		try
+		{
 			applet = Launcher.getMinecraftApplet();
-		} catch (CorruptedMinecraftJarException corruption) {
-			corruption.printStackTrace();
-		} catch (MinecraftVerifyException verify) {
+		}
+		catch (CorruptedMinecraftJarException corruption)
+		{
+		}
+		catch (MinecraftVerifyException verify)
+		{
 			OptionDialog.clearCache();
 			JOptionPane.showMessageDialog(getParent(), "The minecraft installation was corrupted. \nThe minecraft installation has been cleaned. \nTry to login again. If that fails, close and \nrestart the appplication.");
 			this.setVisible(false);
 			this.dispose();
 			return ERROR_IN_LAUNCH;
 		}
-		if (applet == null) {
+		if (applet == null)
+		{
 			String message = "Failed to launch Launcher!";
 			this.setVisible(false);
 			JOptionPane.showMessageDialog(getParent(), message);
@@ -86,10 +98,9 @@ public class LauncherFrame extends Frame implements WindowListener {
 			return ERROR_IN_LAUNCH;
 		}
 
-		minecraft = new MinecraftAppletEnglober(applet);
+		String launcherPath = String.format("%s/%s", PlatformUtils.APPLICATION_NAME, ModPackListYML.getCurrentModPackName());
 
-		String launcherPath = String.format("%s/%s", PlatformUtils.LAUNCHER_DIR, ModPackListYML.currentModPack);
-
+		minecraft = new MinecraftAppletEnglober(Thread.currentThread(), applet);
 		minecraft.addParameter("username", user);
 		minecraft.addParameter("sessionid", session);
 		minecraft.addParameter("downloadticket", downloadTicket);
@@ -99,9 +110,11 @@ public class LauncherFrame extends Frame implements WindowListener {
 		minecraft.addParameter("portable", String.valueOf(MinecraftUtils.getOptions().isPortable()));
 		minecraft.addParameter("directory", launcherPath);
 		Util.log("Loading Launcher from '%s'", launcherPath);
-		if (MinecraftUtils.getOptions().getServer() != null) {
+		if (MinecraftUtils.getOptions().getServer() != null)
+		{
 			minecraft.addParameter("server", MinecraftUtils.getOptions().getServer());
-			if (MinecraftUtils.getOptions().getPort() != null) {
+			if (MinecraftUtils.getOptions().getPort() != null)
+			{
 				minecraft.addParameter("port", MinecraftUtils.getOptions().getPort());
 			}
 		}
@@ -121,41 +134,56 @@ public class LauncherFrame extends Frame implements WindowListener {
 	}
 
 	@Override
-	public void windowActivated(WindowEvent e) {
+	public void windowActivated(WindowEvent e)
+	{
 	}
 
 	@Override
-	public void windowClosed(WindowEvent e) {
+	public void windowClosed(WindowEvent e)
+	{
 	}
 
 	@Override
-	public void windowClosing(WindowEvent e) {
-		if (LauncherFrame.this.minecraft != null) {
-			LauncherFrame.this.minecraft.stop();
-			LauncherFrame.this.minecraft.destroy();
+	public void windowClosing(WindowEvent e)
+	{
+		if (minecraft != null)
+		{
+			minecraft.stop();
+			try
+			{
+				Thread.sleep(1000L);
+			}
+			catch (InterruptedException ex)
+			{
+			}
+			finally
+			{
+				minecraft.destroy();
+				minecraft = null;
+			}
 		}
-		try {
-			Thread.sleep(10000L);
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
+		
 		System.out.println("Exiting Launcher");
 		System.exit(0);
 	}
 
 	@Override
-	public void windowDeactivated(WindowEvent e) {
+	public void windowDeactivated(WindowEvent e)
+	{
 	}
 
 	@Override
-	public void windowDeiconified(WindowEvent e) {
+	public void windowDeiconified(WindowEvent e)
+	{
 	}
 
 	@Override
-	public void windowIconified(WindowEvent e) {
+	public void windowIconified(WindowEvent e)
+	{
 	}
 
 	@Override
-	public void windowOpened(WindowEvent e) {
+	public void windowOpened(WindowEvent e)
+	{
 	}
 }

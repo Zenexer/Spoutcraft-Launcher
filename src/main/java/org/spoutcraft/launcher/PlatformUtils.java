@@ -29,33 +29,44 @@ import java.security.cert.Certificate;
 import javax.net.ssl.HttpsURLConnection;
 import javax.swing.JProgressBar;
 
-public class PlatformUtils {
 
-	public static final String	LAUNCHER_DIR	= "techniclauncher";
-	private static File					workDir				= null;
+public class PlatformUtils
+{
+	public static final String APPLICATION_NAME = "earth2melauncher";
+	private static File workDir = null;
 
-	public static File getWorkingDirectory() {
-		if (workDir == null) {
-			workDir = getWorkingDirectory(LAUNCHER_DIR);
+	public static File getWorkingDirectory()
+	{
+		if (workDir == null)
+		{
+			workDir = getWorkingDirectory(APPLICATION_NAME);
 		}
 		return workDir;
 	}
 
-	public static File getWorkingDirectory(String applicationName) {
+	public static File getWorkingDirectory(String applicationName)
+	{
 		boolean isPortable = MinecraftUtils.getOptions().isPortable();
-		if (isPortable) { return new File("." + LAUNCHER_DIR); }
+		if (isPortable)
+		{
+			return new File("." + APPLICATION_NAME);
+		}
 		String userHome = System.getProperty("user.home", ".");
 		File workingDirectory;
-		switch (getPlatform()) {
+		switch (getPlatform())
+		{
 		case linux:
 		case solaris:
 			workingDirectory = new File(userHome, '.' + applicationName + '/');
 			break;
 		case windows:
 			String applicationData = System.getenv("APPDATA");
-			if (applicationData != null) {
+			if (applicationData != null)
+			{
 				workingDirectory = new File(applicationData, "." + applicationName + '/');
-			} else {
+			}
+			else
+			{
 				workingDirectory = new File(userHome, '.' + applicationName + '/');
 			}
 			break;
@@ -65,31 +76,56 @@ public class PlatformUtils {
 		default:
 			workingDirectory = new File(userHome, applicationName + '/');
 		}
-		if ((!workingDirectory.exists()) && (!workingDirectory.mkdirs())) { throw new RuntimeException("The working directory could not be created: " + workingDirectory); }
+		if ((!workingDirectory.exists()) && (!workingDirectory.mkdirs()))
+		{
+			throw new RuntimeException("The working directory could not be created: " + workingDirectory);
+		}
 		return workingDirectory;
 	}
 
-	public static OS getPlatform() {
+	public static OS getPlatform()
+	{
 		String osName = System.getProperty("os.name").toLowerCase();
-		if (osName.contains("win")) { return OS.windows; }
-		if (osName.contains("mac")) { return OS.macos; }
-		if (osName.contains("solaris")) { return OS.solaris; }
-		if (osName.contains("sunos")) { return OS.solaris; }
-		if (osName.contains("linux")) { return OS.linux; }
-		if (osName.contains("unix")) { return OS.linux; }
+		if (osName.contains("win"))
+		{
+			return OS.windows;
+		}
+		if (osName.contains("mac"))
+		{
+			return OS.macos;
+		}
+		if (osName.contains("solaris"))
+		{
+			return OS.solaris;
+		}
+		if (osName.contains("sunos"))
+		{
+			return OS.solaris;
+		}
+		if (osName.contains("linux"))
+		{
+			return OS.linux;
+		}
+		if (osName.contains("unix"))
+		{
+			return OS.linux;
+		}
 		return OS.unknown;
 	}
 
-	public enum OS {
 
+	public enum OS
+	{
 		linux, solaris, windows, macos, unknown
 	}
 
-	public static String excutePost(String targetURL, String urlParameters, JProgressBar progress) {
+	public static String excutePost(String targetURL, String urlParameters, JProgressBar progress)
+	{
 		HttpsURLConnection connection = null;
-		try {
+		try
+		{
 			URL url = new URL(targetURL);
-			connection = (HttpsURLConnection) url.openConnection();
+			connection = (HttpsURLConnection)url.openConnection();
 			connection.setRequestMethod("POST");
 			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
@@ -114,8 +150,10 @@ public class PlatformUtils {
 			PublicKey pk = c.getPublicKey();
 			byte[] data = pk.getEncoded();
 
-			for (int j = 0; j < data.length; j++) {
-				if (data[j] == bytes[j]) {
+			for (int j = 0; j < data.length; j++)
+			{
+				if (data[j] == bytes[j])
+				{
 					continue;
 				}
 				throw new RuntimeException("Public key mismatch");
@@ -131,18 +169,24 @@ public class PlatformUtils {
 
 			StringBuilder response = new StringBuilder();
 			String line;
-			while ((line = rd.readLine()) != null) {
+			while ((line = rd.readLine()) != null)
+			{
 				response.append(line);
 				response.append('\r');
 			}
 			rd.close();
 
 			return response.toString();
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			String message = "Login failed...";
 			progress.setString(message);
-		} finally {
-			if (connection != null) {
+		}
+		finally
+		{
+			if (connection != null)
+			{
 				connection.disconnect();
 			}
 		}

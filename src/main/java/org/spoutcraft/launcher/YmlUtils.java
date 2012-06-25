@@ -1,54 +1,46 @@
 package org.spoutcraft.launcher;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-
 import org.yaml.snakeyaml.Yaml;
 
-public class YmlUtils {
 
-	public static boolean downloadMirrorsYmlFile(String mirrorYmlUrl) {
-		return downloadYmlFile(mirrorYmlUrl, null, MirrorUtils.mirrorsYML);
+public class YmlUtils
+{
+	public static boolean downloadRelativeYmlFile(String ymlUrl, String relativePath)
+	{
+		return downloadYmlFile(ymlUrl, null, new File(GameUpdater.workDir, relativePath));
 	}
 
-	public static boolean downloadRelativeYmlFile(String relativePath) {
-		return downloadYmlFile(relativePath, null, new File(GameUpdater.workDir, relativePath));
-	}
-
-	public static boolean downloadYmlFile(String ymlUrl, String fallbackUrl, File ymlFile) {
-		if (Main.isOffline) return false;
-		boolean isRelative = !ymlUrl.contains("http");
+	public static boolean downloadYmlFile(String ymlUrl, String fallbackUrl, File ymlFile)
+	{
+		if (Main.isOffline)
+		{
+			return false;
+		}
 
 		GameUpdater.tempDir.mkdirs();
 
-		if (isRelative && ymlFile.exists() && MD5Utils.checksumPath(ymlUrl)) { return true; }
+		if (ymlFile.exists() && MD5Utils.checksumPath(ymlUrl))
+		{
+			return true;
+		}
 
 		URL url = null;
 		InputStream io = null;
 		OutputStream out = null;
-		try {
-			if (!isRelative && !MirrorUtils.isAddressReachable(ymlUrl)) {
-				if (GameUpdater.canPlayOffline()) {
+		try
+		{
+			ymlUrl = MirrorUtils.getMirrorUrl(ymlUrl, fallbackUrl);
+			if (ymlUrl == null)
+			{
+				if (GameUpdater.canPlayOffline())
+				{
 					Main.isOffline = true;
 				}
 				return false;
-			} else if (isRelative) {
-				ymlUrl = MirrorUtils.getMirrorUrl(ymlUrl, fallbackUrl);
-				if (ymlUrl == null) {
-					if (GameUpdater.canPlayOffline()) {
-						Main.isOffline = true;
-					}
-					return false;
-				}
 			}
 
 			Util.log("[Info] Downloading '%s' from '%s'.", ymlFile.getName(), ymlUrl);
@@ -63,7 +55,8 @@ public class YmlUtils {
 			File tempFile = new File(GameUpdater.tempDir, ymlFile.getName());
 			out = new BufferedOutputStream(new FileOutputStream(tempFile));
 
-			if (GameUpdater.copy(con.getInputStream(), out) <= 0) {
+			if (GameUpdater.copy(con.getInputStream(), out) <= 0)
+			{
 				Util.log("Download URL was empty: '%s'/n", url);
 				return false;
 			}
@@ -80,19 +73,36 @@ public class YmlUtils {
 			tempFile.delete();
 
 			return true;
-		} catch (MalformedURLException e) {
+		}
+		catch (MalformedURLException e)
+		{
 			Util.log("Download URL badly formed: '%s'/n", url);
 			e.printStackTrace();
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			e.printStackTrace();
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			Util.log("Yaml File has error's badly formed: '%s'/n", url);
 			e.printStackTrace();
-		} finally {
-			try {
-				if (io != null) io.close();
-				if (out != null) out.close();
-			} catch (IOException e) {
+		}
+		finally
+		{
+			try
+			{
+				if (io != null)
+				{
+					io.close();
+				}
+				if (out != null)
+				{
+					out.close();
+				}
+			}
+			catch (IOException e)
+			{
 				e.printStackTrace();
 			}
 		}

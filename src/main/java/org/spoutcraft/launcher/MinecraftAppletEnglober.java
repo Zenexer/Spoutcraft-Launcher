@@ -27,28 +27,34 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+
 /**
- * 
+ *
  * @author creadri
  */
-public class MinecraftAppletEnglober extends Applet implements AppletStub {
-
+public class MinecraftAppletEnglober extends Applet implements AppletStub
+{
 	/**
-   *
-   */
-	private static final long					serialVersionUID	= -4815977474500388254L;
-	private Applet										minecraftApplet;
-	private URL												minecraftDocumentBase;
-	private final Map<String, String>	customParameters;
-	private boolean										active						= false;
+	 *
+	 */
+	private static final long serialVersionUID = -4815977474500388254L;
+	private Applet minecraftApplet;
+	private URL minecraftDocumentBase;
+	private final Map<String, String> customParameters;
+	private boolean active = false;
+	private final Thread parent;
 
-	public MinecraftAppletEnglober() throws HeadlessException {
+	public MinecraftAppletEnglober(final Thread parent) throws HeadlessException
+	{
+		this.parent = parent;
 		this.customParameters = new HashMap<String, String>();
 		this.setLayout(new GridBagLayout());
 	}
 
-	public MinecraftAppletEnglober(Applet minecraftApplet) throws HeadlessException {
-		this();
+	public MinecraftAppletEnglober(final Thread parent, Applet minecraftApplet) throws HeadlessException
+	{
+		this(parent);
+		
 		this.minecraftApplet = minecraftApplet;
 		java.awt.GridBagConstraints gridBagConstraints = new java.awt.GridBagConstraints();
 		gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -59,12 +65,15 @@ public class MinecraftAppletEnglober extends Applet implements AppletStub {
 		this.add(minecraftApplet, gridBagConstraints);
 	}
 
-	public Applet getMinecraftApplet() {
+	public Applet getMinecraftApplet()
+	{
 		return minecraftApplet;
 	}
 
-	public void setMinecraftApplet(Applet minecraftApplet) {
-		if (this.minecraftApplet != null) {
+	public void setMinecraftApplet(Applet minecraftApplet)
+	{
+		if (this.minecraftApplet != null)
+		{
 			remove(minecraftApplet);
 		}
 		java.awt.GridBagConstraints gridBagConstraints = new java.awt.GridBagConstraints();
@@ -78,50 +87,67 @@ public class MinecraftAppletEnglober extends Applet implements AppletStub {
 		this.minecraftApplet = minecraftApplet;
 	}
 
-	public void addParameter(String name, String value) {
+	public void addParameter(String name, String value)
+	{
 		customParameters.put(name, value);
 	}
 
 	@Override
-	public String getParameter(String name) {
+	public String getParameter(String name)
+	{
 		String custom = this.customParameters.get(name);
-		if (custom != null) { return custom; }
-		try {
+		if (custom != null)
+		{
+			return custom;
+		}
+		try
+		{
 			return super.getParameter(name);
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			this.customParameters.put(name, null);
 		}
 		return null;
 	}
 
 	@Override
-	public boolean isActive() {
+	public boolean isActive()
+	{
 		return active;
 	}
 
 	@Override
-	public void appletResize(int width, int height) {
+	public void appletResize(int width, int height)
+	{
 		minecraftApplet.resize(width, height);
 	}
 
 	@Override
-	public void init() {
-		if (minecraftApplet != null) {
+	public void init()
+	{
+		if (minecraftApplet != null)
+		{
 			minecraftApplet.init();
 
 		}
 	}
 
 	@Override
-	public void start() {
-		if (minecraftApplet != null) {
-			try {
+	public void start()
+	{
+		if (minecraftApplet != null)
+		{
+			try
+			{
 				Launcher.mcField.setAccessible(true);
 				Object mcInstance = Launcher.mcField.get(minecraftApplet);
 				Field quitField = Launcher.mcClass.getDeclaredField("n");
 				Object quitInstance = quitField.get(mcInstance);
 				quitField.setBoolean(mcInstance, Boolean.FALSE);
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				e.printStackTrace();
 			}
 			minecraftApplet.start();
@@ -131,41 +157,53 @@ public class MinecraftAppletEnglober extends Applet implements AppletStub {
 	}
 
 	@Override
-	public void stop() {
-		if (minecraftApplet != null) {
+	public void stop()
+	{
+		if (minecraftApplet != null)
+		{
 			minecraftApplet.stop();
 			active = false;
 		}
+		parent.interrupt();
 	}
 
 	@Override
-	public URL getCodeBase() {
+	public URL getCodeBase()
+	{
 		return minecraftApplet.getCodeBase();
 	}
 
 	@Override
-	public URL getDocumentBase() {
-		if (minecraftDocumentBase == null) {
-			try {
+	public URL getDocumentBase()
+	{
+		if (minecraftDocumentBase == null)
+		{
+			try
+			{
 				minecraftDocumentBase = new URL("http://www.minecraft.net/game");
-			} catch (MalformedURLException ignored) {
+			}
+			catch (MalformedURLException ignored)
+			{
 			}
 		}
 		return minecraftDocumentBase;
 	}
 
 	@Override
-	public void resize(int width, int height) {
+	public void resize(int width, int height)
+	{
 		minecraftApplet.resize(width, height);
 	}
 
 	@Override
-	public void resize(Dimension d) {
+	public void resize(Dimension d)
+	{
 		minecraftApplet.resize(d);
 	}
 
 	@Override
-	public void setVisible(boolean b) {
+	public void setVisible(boolean b)
+	{
 		super.setVisible(b);
 		minecraftApplet.setVisible(b);
 	}

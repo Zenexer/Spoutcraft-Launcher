@@ -81,7 +81,7 @@ public class SettingsUtil {
 		return getProperty("modpack", null);
 	}
 
-	public static void setModPack(String value) {
+	public static void setCurrentModPack(String value) {
 		setProperty("modpack", value);
 	}
 

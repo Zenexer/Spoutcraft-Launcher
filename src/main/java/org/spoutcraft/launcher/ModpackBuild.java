@@ -67,7 +67,7 @@ public class ModpackBuild {
 	}
 
 	public String getPatchURL(String oldVersion, String newVersion) {
-		String mirrorURL = "Patches/Minecraft/minecraft_";
+		String mirrorURL = "http://mirror.technicpack.net/Technic/Patches/Minecraft/minecraft_";
 		mirrorURL += oldVersion;
 		mirrorURL += "-" + newVersion + ".patch";
 		String fallbackURL = "http://spout.thomasc.co.uk/Patches/Minecraft/minecraft_";
