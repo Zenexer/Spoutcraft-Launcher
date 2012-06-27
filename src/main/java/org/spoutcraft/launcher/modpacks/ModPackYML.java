@@ -40,7 +40,7 @@ public class ModPackYML
 			{
 				String selected = getSelectedBuild();
 
-				YmlUtils.downloadYmlFile(ModPackListYML.getCurrentModPack().url, null, getModPackYMLFile());
+				YmlUtils.downloadYmlFile(String.format(ModPackListYML.getCurrentModPack().url, ModPackListYML.getCurrentModPackName()), null, getModPackYMLFile());
 
 				Configuration config = new Configuration(getModPackYMLFile());
 				config.load();

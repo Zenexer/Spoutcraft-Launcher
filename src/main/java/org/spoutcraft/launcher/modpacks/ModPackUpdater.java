@@ -2,6 +2,7 @@ package org.spoutcraft.launcher.modpacks;
 
 import java.io.*;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarEntry;
@@ -50,27 +51,32 @@ public class ModPackUpdater extends GameUpdater
 
 				final String installType = modProperties.containsKey("installtype") ? (String)modProperties.get("installtype") : "zip";
 				final String fullFilename = modName + "-" + version + "." + installType;
-				final String mirrorUrl = (String)modProperties.get("mirror-url");
-				final String fallbackUrl = (String)modProperties.get("fallback-url");
+				final List<String> mirrors = (List<String>)modProperties.get("mirrors");
+				if (mirrors.size() < 1)
+				{
+					throw new IOException(String.format("Mod '%s' is missing a mirror.", modName));
+				}
 
-				String installedModVersion = InstalledModsYML.getInstalledModVersion(modName);
+				final String installedModVersion = InstalledModsYML.getInstalledModVersion(modName);
 
 				// If installed mods md5 hash is the same as server's version
 				// then go to next mod.
 				if (installedModVersion != null && installedModVersion.equals(version))
 				{
-					if (MD5Utils.checksumCachePath(fullFilename, mirrorUrl))
+					if (MD5Utils.checksumCachePath(fullFilename, mirrors.get(0)))
 					{
 						continue;
 					}
 				}
 
-				File modFile = new File(tempDir, fullFilename);
-
-				// If have the mod file then update
-				if (downloadModPackage(modName, fullFilename, modFile, mirrorUrl, fallbackUrl))
+				final File modFile = new File(tempDir, fullFilename);
+				for (String url : mirrors)
 				{
-					updateMod(modFile, modName, version);
+					if (downloadModPackage(modName, fullFilename, modFile, url))
+					{
+						updateMod(modFile, modName, version);
+						break;
+					}
 				}
 			}
 		}
@@ -101,7 +107,7 @@ public class ModPackUpdater extends GameUpdater
 
 	}
 
-	public boolean downloadModPackage(String name, String filename, File downloadedFile, String mirrorUrl, String fallbackUrl)
+	public boolean downloadModPackage(String name, String filename, File downloadedFile, String mirrorUrl)
 	{
 		try
 		{
@@ -118,17 +124,16 @@ public class ModPackUpdater extends GameUpdater
 			}
 			else
 			{
-				String url = MirrorUtils.getMirrorUrl(mirrorUrl, fallbackUrl, this);
+				mirrorUrl = String.format(mirrorUrl, filename);
 				String fileMD5 = MD5Utils.getMD5FromList(mirrorUrl);
-				Download download = DownloadUtils.downloadFile(url, downloadedFile.getPath(), filename, fileMD5, this);
+				Download download = DownloadUtils.downloadFile(mirrorUrl, downloadedFile.getPath(), filename, fileMD5, this);
 				return download.isSuccess();
 			}
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			return false;
 		}
-		return false;
 	}
 
 	public boolean createJar(File jarFilename, File... filesToAdd)
@@ -167,7 +172,6 @@ public class ModPackUpdater extends GameUpdater
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
 		}
 		return true;
 	}
@@ -221,7 +225,6 @@ public class ModPackUpdater extends GameUpdater
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
 		}
 	}
 

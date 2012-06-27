@@ -21,16 +21,22 @@ import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 
-public class ModsDialog extends JDialog implements ActionListener {
-	private final JPanel								contentPanel	= new JPanel();
-	protected JToggleButton[]						modLists;
-	protected Map<Integer, ButtonGroup>	groups;
+
+public class ModsDialog extends JDialog implements ActionListener
+{
+	private final JPanel contentPanel = new JPanel();
+	protected JToggleButton[] modLists;
+	protected Map<Integer, ButtonGroup> groups;
 
 	/**
 	 * Create the dialog.
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes", "serial" })
-	public ModsDialog(List<Map<String, String>> modNameList) {
+	@SuppressWarnings(
+	{
+		"unchecked", "rawtypes", "serial"
+	})
+	public ModsDialog(List<Map<String, String>> modNameList)
+	{
 		setTitle("Select Mods to Install");
 		setBounds(100, 100, 616, 492);
 		getContentPane().setLayout(new BorderLayout());
@@ -39,20 +45,28 @@ public class ModsDialog extends JDialog implements ActionListener {
 
 		groups = new HashMap<Integer, ButtonGroup>();
 
-		if (modNameList != null) {
+		if (modNameList != null)
+		{
 			modLists = new JToggleButton[modNameList.size()];
 			JToggleButton item = null;
 
-			for (int i = 0; i < modNameList.size(); i++) {
+			for (int i = 0; i < modNameList.size(); i++)
+			{
 				Map<String, String> modDetails = modNameList.get(i);
-				if (modDetails.containsKey("groupid")) {
+				if (modDetails.containsKey("groupid"))
+				{
 					item = new JRadioButton(modDetails.get("name"), false);
 					int groupid = Integer.parseInt(modDetails.get("groupid"));
-					if (!groups.containsKey(groupid)) {
+					if (!groups.containsKey(groupid))
+					{
 						groups.put(groupid, new ButtonGroup());
 					}
 					groups.get(groupid).add(item);
-				} else item = new JCheckBox(modDetails.get("name"), false);
+				}
+				else
+				{
+					item = new JCheckBox(modDetails.get("name"), false);
+				}
 
 				item.setOpaque(false);
 				item.setFocusPainted(false);
@@ -60,7 +74,9 @@ public class ModsDialog extends JDialog implements ActionListener {
 
 				modLists[i] = item;
 			}
-		} else {
+		}
+		else
+		{
 			modLists = new JCheckBox[0];
 		}
 
@@ -69,12 +85,15 @@ public class ModsDialog extends JDialog implements ActionListener {
 			CheckBoxList modList = new CheckBoxList();
 			modList.setOpaque(false);
 			modList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			modList.setModel(new AbstractListModel() {
-				public int getSize() {
+			modList.setModel(new AbstractListModel()
+			{
+				public int getSize()
+				{
 					return modLists.length;
 				}
 
-				public Object getElementAt(int index) {
+				public Object getElementAt(int index)
+				{
 					return modLists[index];
 				}
 			});
@@ -111,24 +130,27 @@ public class ModsDialog extends JDialog implements ActionListener {
 			}
 		}
 	}
+	public List<Boolean> ModsSelected = new ArrayList<Boolean>();
 
-	public List<Boolean>	ModsSelected	= new ArrayList<Boolean>();
-
-	public void actionPerformed(ActionEvent evt) {
+	public void actionPerformed(ActionEvent evt)
+	{
 		String id = evt.getActionCommand();
-		if (id.equals("OK")) {
+		if (id.equals("OK"))
+		{
 			ModsSelected.clear();
-			for (int i = 0; i < modLists.length; i++) {
+			for (int i = 0; i < modLists.length; i++)
+			{
 				AbstractButton button = modLists[i];
 				ModsSelected.add(button.isSelected());
 			}
 
 			this.setVisible(false);
 			this.dispose();
-		} else if (id.equals("Cancel")) {
+		}
+		else if (id.equals("Cancel"))
+		{
 			this.setVisible(false);
 			this.dispose();
 		}
 	}
-
 }

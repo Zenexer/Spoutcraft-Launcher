@@ -22,10 +22,8 @@ import java.awt.event.*;
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
+import java.util.*;
 import javax.crypto.*;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
@@ -35,10 +33,7 @@ import org.spoutcraft.launcher.*;
 import org.spoutcraft.launcher.async.DownloadListener;
 import org.spoutcraft.launcher.exception.*;
 import org.spoutcraft.launcher.gui.widget.ComboBoxRenderer;
-import org.spoutcraft.launcher.modpacks.ModLibraryYML;
-import org.spoutcraft.launcher.modpacks.ModPackListYML;
-import org.spoutcraft.launcher.modpacks.ModPackUpdater;
-import org.spoutcraft.launcher.modpacks.ModPackYML;
+import org.spoutcraft.launcher.modpacks.*;
 
 
 public final class LoginForm extends JFrame implements ActionListener, DownloadListener, KeyListener, WindowListener
@@ -77,6 +72,7 @@ public final class LoginForm extends JFrame implements ActionListener, DownloadL
 	Container offlinePane = new Container();
 	// private final JLabel lblLogo;
 	private JComboBox modpackList;
+	private final List<String> modpackNames = new ArrayList<String>();
 
 	public LoginForm()
 	{
@@ -123,23 +119,23 @@ public final class LoginForm extends JFrame implements ActionListener, DownloadL
 		// lblLogo = new JLabel("");
 		// lblLogo.setBounds(8, 0, 294, 99);
 		List<String> items = new ArrayList<String>();
-		int i = 0;
-		for (String item : ModPackListYML.getModPacks().keySet())
+		modpackNames.clear();
+		for (Map.Entry<String, ModPack> item : ModPackListYML.getModPacks().entrySet())
 		{
-			if (!Main.isOffline || GameUpdater.canPlayOffline(item))
+			if (!Main.isOffline || GameUpdater.canPlayOffline(item.getKey()))
 			{
-				items.add(item);
-				i += 1;
+				final ModPack modpack = item.getValue();
+				items.add(modpack.label.intern());
+				modpackNames.add(item.getKey());
 			}
 		}
-		String[] itemArray = new String[i];
-		modpackList = new JComboBox(items.toArray(itemArray));
+		modpackList = new JComboBox(items.toArray(new String[0]));
 		modpackList.setBounds(10, 10, 328, 100);
 		ComboBoxRenderer renderer = new ComboBoxRenderer();
 		renderer.setPreferredSize(new Dimension(200, 110));
 		modpackList.setRenderer(renderer);
 		modpackList.setMaximumRowCount(3);
-		modpackList.setSelectedItem(SettingsUtil.getModPackSelection());
+		modpackList.setSelectedItem(ModPackListYML.getModPacks().get(SettingsUtil.getModPackSelection()).label.intern());
 		modpackList.addActionListener(this);
 
 		JLabel lblMinecraftUsername = new JLabel("Minecraft Username: ");
@@ -178,7 +174,7 @@ public final class LoginForm extends JFrame implements ActionListener, DownloadL
 		progressBar.setStringPainted(true);
 		progressBar.setOpaque(true);
 
-		JLabel purchaseAccount = new HyperlinkJLabel("<html><u>Need a minecraft account?</u></html>", "http://www.minecraft.net/register.jsp");
+		JLabel purchaseAccount = new HyperlinkJLabel("<html><u>Need a Minecraft account?</u></html>", "http://www.minecraft.net/register.jsp");
 		purchaseAccount.setHorizontalAlignment(SwingConstants.RIGHT);
 		purchaseAccount.setBounds(243, 70, 111, 14);
 
@@ -186,7 +182,7 @@ public final class LoginForm extends JFrame implements ActionListener, DownloadL
 		purchaseAccount.setFont(new Font("Arial", Font.PLAIN, 11));
 		purchaseAccount.setForeground(new Color(0, 0, 255));
 
-		JLabel wikiLink = new HyperlinkJLabel("<html><u>Technic WebSite</u></html>", "http://technicpack.net/");
+		JLabel wikiLink = new HyperlinkJLabel("<html><u>Technic Website</u></html>", "http://technicpack.net/");
 		wikiLink.setHorizontalAlignment(SwingConstants.RIGHT);
 		wikiLink.setBounds(233, 85, 109, 14);
 
@@ -599,17 +595,17 @@ public final class LoginForm extends JFrame implements ActionListener, DownloadL
 			eventId = "Login";
 			this.usernameField.setSelectedItem(((JButton)source).getText());
 		}
-		else if (loginSkin1Image.contains(source))
+		else if (source instanceof JButton && loginSkin1Image.contains((JButton)source))
 		{
 			eventId = "Login";
 			this.usernameField.setSelectedItem(loginSkin1.getText());
 		}
-		else if (loginSkin2Image.contains(source))
+		else if (source instanceof JButton && loginSkin2Image.contains((JButton)source))
 		{
 			eventId = "Login";
 			this.usernameField.setSelectedItem(loginSkin2.getText());
 		}
-		if ((source == modpackList))
+		if (source == modpackList)
 		{
 			if (ModPackListYML.getCurrentModPack() == null)
 			{
@@ -620,8 +616,7 @@ public final class LoginForm extends JFrame implements ActionListener, DownloadL
 			{
 				GameUpdater.copy(SettingsUtil.settingsFile, new File(GameUpdater.modpackDir, "launcher.properties"));
 			}
-			String selectedItem = (String)((JComboBox)source).getSelectedItem();
-			SettingsUtil.setCurrentModPack(selectedItem);
+			SettingsUtil.setCurrentModPack(modpackNames.get(modpackList.getSelectedIndex()));
 			updateBranding();
 		}
 		if ((eventId.equals("Login") || eventId.equals(usernameField.getSelectedItem())) && loginButton.isEnabled())
@@ -991,12 +986,12 @@ public final class LoginForm extends JFrame implements ActionListener, DownloadL
 				}
 				catch (NoMirrorsAvailableException e)
 				{
-					JOptionPane.showMessageDialog(getParent(), "No Mirrors Are Available to download from!\nTry again later.");
+					JOptionPane.showMessageDialog(getParent(), "No mirrors are available from which to download.\nTry again later.");
 				}
 				catch (Exception e)
 				{
 					e.printStackTrace();
-					JOptionPane.showMessageDialog(getParent(), "Update Failed!");
+					JOptionPane.showMessageDialog(getParent(), "Update Failed");
 					error = true;
 					enableUI();
 					this.cancel(true);
